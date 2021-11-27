@@ -103,7 +103,7 @@
 	    
 	    <snapshotRepository>
 	      <id>nexus</id>
-	      <name>Mithun Maven-Web Nexus Repository </name>
+	      <name>Maven-Web Nexus Repository </name>
 	      <url>http://192.168.56.101:82/repository/maven-web-snapshot/</url>
 	    </snapshotRepository>
 	    
