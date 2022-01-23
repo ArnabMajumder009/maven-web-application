@@ -1,0 +1,43 @@
+pipeline{
+  agent any
+  stages{
+   stage('SCM Checkout'){
+     steps{
+       git credentialsId: 'git-creds', url: 'https://github.com/ArnabMajumder009/maven-web-application.git'
+   }
+}
+   stage('ContineousBuild'){
+    steps{
+     def mvnHome = tool name: 'maven-3', type: 'maven'
+     def mvnCMD = "${mvnHome}/bin/mvn"
+     sh "${mvnCMD} clean package"
+   }
+}
+   stage('Build Docker Image'){
+   steps{
+     sh 'docker build -t saikatd354/maven-mt.'
+   }
+}
+   stage('Push Docker Image'){
+   steps{
+     withCredentials([string(credentialsId: 'docker-pwd', variable: 'dockerHubPwd')]) {
+        sh "docker login -u saikatd354 -p ${dockerHubPwd}"
+     }
+     sh 'docker push saikatd354/maven-mt'
+   }
+}
+   stage('Run Container on Dev Server'){
+   steps{
+     def dockerRun = 'docker run -p 8080:8080 -d --name my-app saikatd354/maven-mt'
+     sshagent(['dev-server']) {
+       sh "ssh -o StrictHostKeyChecking=no ec2-user@172.31.18.198 ${dockerRun}"
+     }
+   }
+}
+
+
+}//stages end
+
+
+
+}//pipeline end
